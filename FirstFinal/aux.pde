@@ -1,5 +1,5 @@
 boolean in_range(long lat, long lon){
-    long margin_of_error = 20; 
+    long margin_of_error = 01; 
   // .00001 is equal to about 3 feet or 1 meter
   // .0001 is equal to about 30 feet
   long my_lat = 3758555;

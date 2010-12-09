@@ -76,6 +76,11 @@ void loop() {
     Serial.println("Unlock");
     myservo.write(140);
   }else{
+    // Need to output to user how far they are
+    float flat = lat / 100000.0;
+    float flon = lon / 100000.0;
+    float pie = distance_to_target(flat, flon);
+    Serial.println(pie);
     Serial.println("Lock");
     myservo.write(0);
   }
