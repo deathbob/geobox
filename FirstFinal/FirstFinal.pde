@@ -2,11 +2,8 @@
 #include <TinyGPS.h>
 #include <LiquidCrystal.h>
 #include <Servo.h>
-
-/* This sample code demonstrates the normal use of a TinyGPS object.
-   It requires the use of NewSoftSerial, and assumes that you have a
-   4800-baud serial GPS device hooked up on pins 2(rx) and 3(tx).
-*/
+// Had to copy old version of Servo library over from Arduino 16, because there's a conflict between the newer servo libary and 
+// NewSoftSerial http://buildsomething.net/Projectblog/?p=37
 
 TinyGPS gps;
 NewSoftSerial nss(2, 3);
@@ -24,23 +21,23 @@ void setup()
   Serial.begin(115200);
   nss.begin(4800);
   
-  myservo.attach(9, 800, 2200);
+  myservo.attach(9, 900, 1900);
+  myservo.write(0);
   
   // set up the LCD's number of columns and rows: 
   lcd.begin(16, 2);
   // Print a message to the LCD.
-  lcd.print("hello, world!");
+  lcd.print("HELLO WORLD");
   
-//  Serial.print("Testing TinyGPS library v. "); Serial.println(TinyGPS::library_version());
-//  Serial.println("by Mikal Hart");
-//  Serial.println();
-//  Serial.print("Sizeof(gpsobject) = "); Serial.println(sizeof(TinyGPS));
-//  
-//  Serial.println();
 }
 
 void loop() {
   bool newdata = false;
+  long lat = 0;
+  long lon = 0;
+  unsigned long age;
+  String slat, slon;
+
   unsigned long start = millis();
 
   // Every 5 seconds we print an update
@@ -53,15 +50,9 @@ void loop() {
   
   if((attempts > 12) && (!newdata)){
   // we're probably inside, not getting a good gps signal
+    Serial.println("Waiting for newdata");
   }else if(newdata){
-//    Serial.println("Acquired Data");
-//    Serial.println("-------------");
-//    gpsdump(gps);
-//    Serial.println("-------------");
-//    Serial.println();
-    long lat, lon;
-    unsigned long age;
-    String slat, slon;
+
     gps.get_position(&lat, &lon, &age);
     slat = "Lat: ";
     slon = "Lon: ";
@@ -71,129 +62,31 @@ void loop() {
     lcd.print(slat);
     lcd.setCursor(0, 1);
     lcd.print(slon);
+    Serial.println(slat);
+    Serial.println(slon);
   }
   else{
     Serial.println("Nothing");
   }
+  
+  // Here's where we lock / unlock the box
+  
+  if (in_range(lat, lon)){
+    // unlock
+    Serial.println("Unlock");
+    myservo.write(140);
+  }else{
+    Serial.println("Lock");
+    myservo.write(0);
+  }
 
-
-  for(pos = 0; pos < 180; pos += 1)  // goes from 0 degrees to 180 degrees 
-  {                                  // in steps of 1 degree 
-    myservo.write(pos);              // tell servo to go to position in variable 'pos' 
-    delay(15);                       // waits 15ms for the servo to reach the position 
-  } 
-  for(pos = 180; pos>=1; pos-=1)     // goes from 180 degrees to 0 degrees 
-  {                                
-    myservo.write(pos);              // tell servo to go to position in variable 'pos' 
-    delay(15);                       // waits 15ms for the servo to reach the position 
-  } 
-
-
-
+  
+//  myservo.write(90);
+//  delay(15);
+//  myservo.write(145);
+//  delay(15);
+//  myservo.write(180);
+//  delay(15);
 } // end loop
 
 
-
-
-
-
-
-
-
-
-
-
-/// Auxilary functions
-
-
-
-void printFloat(double number, int digits)
-{
-  // Handle negative numbers
-  if (number < 0.0)
-  {
-     Serial.print('-');
-     number = -number;
-  }
-
-  // Round correctly so that print(1.999, 2) prints as "2.00"
-  double rounding = 0.5;
-  for (uint8_t i=0; i<digits; ++i)
-    rounding /= 10.0;
-  
-  number += rounding;
-
-  // Extract the integer part of the number and print it
-  unsigned long int_part = (unsigned long)number;
-  double remainder = number - (double)int_part;
-  Serial.print(int_part);
-
-  // Print the decimal point, but only if there are digits beyond
-  if (digits > 0)
-    Serial.print("."); 
-
-  // Extract digits from the remainder one at a time
-  while (digits-- > 0)
-  {
-    remainder *= 10.0;
-    int toPrint = int(remainder);
-    Serial.print(toPrint);
-    remainder -= toPrint; 
-  } 
-}
-
-void gpsdump(TinyGPS &gps)
-{
-  long lat, lon;
-  float flat, flon;
-  unsigned long age, date, time, chars;
-  int year;
-  byte month, day, hour, minute, second, hundredths;
-  unsigned short sentences, failed;
-
-  gps.get_position(&lat, &lon, &age);
-  Serial.print("Lat/Long(10^-5 deg): "); Serial.print(lat); Serial.print(", "); Serial.print(lon); 
-  Serial.print(" Fix age: "); Serial.print(age); Serial.println("ms.");
-  
-  feedgps(); // If we don't feed the gps during this long routine, we may drop characters and get checksum errors
-
-  gps.f_get_position(&flat, &flon, &age);
-  Serial.print("Lat/Long(float): "); printFloat(flat, 5); Serial.print(", "); printFloat(flon, 5);
-  Serial.print(" Fix age: "); Serial.print(age); Serial.println("ms.");
-
-  feedgps();
-
-  gps.get_datetime(&date, &time, &age);
-  Serial.print("Date(ddmmyy): "); Serial.print(date); Serial.print(" Time(hhmmsscc): "); Serial.print(time);
-  Serial.print(" Fix age: "); Serial.print(age); Serial.println("ms.");
-
-  feedgps();
-
-  gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age);
-  Serial.print("Date: "); Serial.print(static_cast<int>(month)); Serial.print("/"); Serial.print(static_cast<int>(day)); Serial.print("/"); Serial.print(year);
-  Serial.print("  Time: "); Serial.print(static_cast<int>(hour)); Serial.print(":"); Serial.print(static_cast<int>(minute)); Serial.print(":"); Serial.print(static_cast<int>(second)); Serial.print("."); Serial.print(static_cast<int>(hundredths));
-  Serial.print("  Fix age: ");  Serial.print(age); Serial.println("ms.");
-  
-  feedgps();
-
-  Serial.print("Alt(cm): "); Serial.print(gps.altitude()); Serial.print(" Course(10^-2 deg): "); Serial.print(gps.course()); Serial.print(" Speed(10^-2 knots): "); Serial.println(gps.speed());
-  Serial.print("Alt(float): "); printFloat(gps.f_altitude()); Serial.print(" Course(float): "); printFloat(gps.f_course()); Serial.println();
-  Serial.print("Speed(knots): "); printFloat(gps.f_speed_knots()); Serial.print(" (mph): ");  printFloat(gps.f_speed_mph());
-  Serial.print(" (mps): "); printFloat(gps.f_speed_mps()); Serial.print(" (kmph): "); printFloat(gps.f_speed_kmph()); Serial.println();
-
-  feedgps();
-
-  gps.stats(&chars, &sentences, &failed);
-  Serial.print("Stats: characters: "); Serial.print(chars); Serial.print(" sentences: "); Serial.print(sentences); Serial.print(" failed checksum: "); Serial.println(failed);
-}
-  
-bool feedgps()
-{
-  while (nss.available())
-  {    
-    if (gps.encode(nss.read())){
-      return true;
-    }
-  }
-  return false;
-}
