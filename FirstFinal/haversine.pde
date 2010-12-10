@@ -1,7 +1,9 @@
+// from http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1289758124/15
 float haverSine(float lat1, float lon1, float lat2, float lon2)
 {
   float ToRad = PI / 180.0;
-  float R = 6371;   // radius earth in Km, change for other planets :)
+//  float R = 6371;   // radius earth in Km, change for other planets :)
+  float R = 6371000; // radius earth in meters
   
   float dLat = (lat2-lat1) * ToRad;
   float dLon = (lon2-lon1) * ToRad;

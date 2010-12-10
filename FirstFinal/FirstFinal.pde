@@ -27,7 +27,9 @@ void setup()
   // set up the LCD's number of columns and rows: 
   lcd.begin(16, 2);
   // Print a message to the LCD.
-  lcd.print("HELLO WORLD");
+  lcd.print("HELLO");
+  lcd.setCursor(0,1);
+  lcd.print("Mom and Dad");
   
 }
 
@@ -51,6 +53,8 @@ void loop() {
   if((attempts > 12) && (!newdata)){
   // we're probably inside, not getting a good gps signal
     Serial.println("Waiting for newdata");
+    lcd.clear();
+    lcd.print("Take Me Outside");
   }else if(newdata){
 
     gps.get_position(&lat, &lon, &age);
@@ -58,30 +62,51 @@ void loop() {
     slon = "Lon: ";
     slat += lat;
     slon += lon;
-    lcd.setCursor(0, 0);
-    lcd.print(slat);
-    lcd.setCursor(0, 1);
-    lcd.print(slon);
+//    lcd.setCursor(0, 0);
+//    lcd.print(slat);
+//    lcd.setCursor(0, 1);
+//    lcd.print(slon);
     Serial.println(slat);
     Serial.println(slon);
   }
   else{
     Serial.println("Nothing");
+    lcd.clear();
+    lcd.print("Warming Up");
   }
   
   // Here's where we lock / unlock the box
   
-  if (in_range(lat, lon)){
-    // unlock
-    Serial.println("Unlock");
-    myservo.write(140);
-  }else{
-    // Need to output to user how far they are
     float flat = lat / 100000.0;
     float flon = lon / 100000.0;
-    float pie = distance_to_target(flat, flon);
-    Serial.println(pie);
+    float meters_away = distance_to_target(flat, flon);
+    Serial.println(meters_away);
+  
+  
+  if (meters_away < 11){
+//  if (in_range(lat, lon)){
+    // unlock
+    Serial.println("Unlock");
+    
+    lcd.clear();
+//    lcd.autoscroll();
+    lcd.setCursor(0,0);
+    lcd.print("You Win");
+    lcd.setCursor(0,1);
+    lcd.print("Box Unlocked!");
+    myservo.write(150);
+  }else{
+    // Need to output to user how far they are
     Serial.println("Lock");
+
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Distance: ");
+    lcd.setCursor(0,1);
+    String foo = "";
+    foo += (int)meters_away;
+    foo += ' meters'; 
+    lcd.print(foo);
     myservo.write(0);
   }
 
