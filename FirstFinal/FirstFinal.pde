@@ -39,6 +39,9 @@ void loop() {
   long lon = 0;
   unsigned long age;
   String slat, slon;
+  boolean they_won = false;
+  float flat, flon, meters_away;
+  
 
   unsigned long start = millis();
 
@@ -47,8 +50,10 @@ void loop() {
     if (feedgps()){
       newdata = true;
     }
-    attempts += 1;
   }
+  
+  attempts += 1;  
+  Serial.println(attempts);
   
   if((attempts > 12) && (!newdata)){
   // we're probably inside, not getting a good gps signal
@@ -68,55 +73,50 @@ void loop() {
 //    lcd.print(slon);
     Serial.println(slat);
     Serial.println(slon);
+    
+    flat = lat / 100000.0;
+    flon = lon / 100000.0;
+    meters_away = distance_to_target(flat, flon);
+    Serial.println(meters_away);
+        
+    if (meters_away < 11){
+      they_won = true;
+      Serial.println("Unlock");
+    
+      lcd.clear();
+  //    lcd.autoscroll();
+      lcd.setCursor(0,0);
+      lcd.print("You Win");
+      lcd.setCursor(0,1);
+      lcd.print("Box Unlocked!");
+      myservo.write(150);
+
+    }else{
+      they_won = false;
+   // Need to output to user how far they are
+      Serial.println("Lock");
+
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("Distance: ");
+      lcd.setCursor(0,1);
+      String foo = "";
+      foo += (int)meters_away;
+      lcd.print(foo);
+
+      foo += ' meters'; 
+      Serial.println(foo);
+
+      myservo.write(0);      
+    }
   }
   else{
     Serial.println("Nothing");
     lcd.clear();
     lcd.print("Warming Up");
   }
-  
-  // Here's where we lock / unlock the box
-  
-    float flat = lat / 100000.0;
-    float flon = lon / 100000.0;
-    float meters_away = distance_to_target(flat, flon);
-    Serial.println(meters_away);
-  
-  
-  if (meters_away < 11){
-//  if (in_range(lat, lon)){
-    // unlock
-    Serial.println("Unlock");
-    
-    lcd.clear();
-//    lcd.autoscroll();
-    lcd.setCursor(0,0);
-    lcd.print("You Win");
-    lcd.setCursor(0,1);
-    lcd.print("Box Unlocked!");
-    myservo.write(150);
-  }else{
-    // Need to output to user how far they are
-    Serial.println("Lock");
 
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print("Distance: ");
-    lcd.setCursor(0,1);
-    String foo = "";
-    foo += (int)meters_away;
-    foo += ' meters'; 
-    lcd.print(foo);
-    myservo.write(0);
-  }
 
-  
-//  myservo.write(90);
-//  delay(15);
-//  myservo.write(145);
-//  delay(15);
-//  myservo.write(180);
-//  delay(15);
 } // end loop
 
 
