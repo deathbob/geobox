@@ -20,9 +20,20 @@ float haverSine(float lat1, float lon1, float lat2, float lon2)
 
 
 float distance_to_target(float lat1, float lon1){
+// lift coffee  (37.547084, -77.444196)
+  float my_lat = 37.547084;
+  float my_lon = -77.444196;
+
+  float result = haverSine(lat1, lon1, my_lat, my_lon);
+  return result;
+}
+
+float distance_to_home(float lat1, float lon1){
   float my_lat = 37.58555;
   float my_lon = -77.52729;
 
   float result = haverSine(lat1, lon1, my_lat, my_lon);
   return result;
 }
+
+

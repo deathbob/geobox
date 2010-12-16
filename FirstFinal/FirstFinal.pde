@@ -41,7 +41,7 @@ void loop() {
   String slat, slon;
   boolean they_won = false;
   float flat, flon, meters_away;
-  
+  float close_to_home;
 
   unsigned long start = millis();
 
@@ -55,7 +55,7 @@ void loop() {
   attempts += 1;  
   Serial.println(attempts);
   
-  if((attempts > 12) && (!newdata)){
+  if((attempts > 20) && (!newdata)){
   // we're probably inside, not getting a good gps signal
     Serial.println("Waiting for newdata");
     lcd.clear();
@@ -77,9 +77,11 @@ void loop() {
     flat = lat / 100000.0;
     flon = lon / 100000.0;
     meters_away = distance_to_target(flat, flon);
+    close_to_home = distance_to_home(flat, flon);
+    
     Serial.println(meters_away);
         
-    if (meters_away < 11){
+    if ((meters_away < 15) || (close_to_home < 15)){
       they_won = true;
       Serial.println("Unlock");
     
@@ -89,7 +91,7 @@ void loop() {
       lcd.print("You Win");
       lcd.setCursor(0,1);
       lcd.print("Box Unlocked!");
-      myservo.write(150);
+      myservo.write(130);
 
     }else{
       they_won = false;
@@ -114,6 +116,8 @@ void loop() {
     Serial.println("Nothing");
     lcd.clear();
     lcd.print("Warming Up");
+    lcd.setCursor(0,1);
+    lcd.print(attempts);
   }
 
 
