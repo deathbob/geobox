@@ -5,6 +5,10 @@
 // Had to copy old version of Servo library over from Arduino 16, because there's a conflict between the newer servo libary and 
 // NewSoftSerial http://buildsomething.net/Projectblog/?p=37
 
+// to get the gps coordinates of a location you are viewing in google maps.  
+// from http://forums.gpsreview.net/viewtopic.php?t=3632
+// javascript:void(prompt('',gApplication.getMap().getCenter()));
+
 TinyGPS gps;
 NewSoftSerial nss(2, 3);
 LiquidCrystal lcd(10, 12, 5, 6, 7, 8);
@@ -27,7 +31,7 @@ void setup()
   // set up the LCD's number of columns and rows: 
   lcd.begin(16, 2);
   // Print a message to the LCD.
-  lcd.print("HELLO");
+  lcd.print("Hello");
   lcd.setCursor(0,1);
   lcd.print("Mom and Dad");
   
@@ -55,11 +59,14 @@ void loop() {
   attempts += 1;  
   Serial.println(attempts);
   
-  if((attempts > 20) && (!newdata)){
+  if((attempts > 30) && (!newdata)){
   // we're probably inside, not getting a good gps signal
     Serial.println("Waiting for newdata");
     lcd.clear();
-    lcd.print("Take Me Outside");
+    lcd.print("Turn off, go");
+    lcd.setCursor(0,1);
+    lcd.print("outside, retry.");
+    //         0123456789123456
   }else if(newdata){
 
     gps.get_position(&lat, &lon, &age);
@@ -81,7 +88,8 @@ void loop() {
     
     Serial.println(meters_away);
         
-    if ((meters_away < 15) || (close_to_home < 15)){
+    if ((meters_away < 18) || (close_to_home < 20)){
+//      if ((meters_away < 18)){
       they_won = true;
       Serial.println("Unlock");
     
@@ -99,14 +107,14 @@ void loop() {
       Serial.println("Lock");
 
       lcd.clear();
-      lcd.setCursor(0,0);
-      lcd.print("Distance: ");
-      lcd.setCursor(0,1);
-      String foo = "";
-      foo += (int)meters_away;
+      String foo;
+      foo = String("Distance: ");
+      foo += (long)meters_away;
       lcd.print(foo);
+      
+      lcd.setCursor(0,1);
+      lcd.print("Meters");
 
-      foo += ' meters'; 
       Serial.println(foo);
 
       myservo.write(0);      
@@ -115,9 +123,47 @@ void loop() {
   else{
     Serial.println("Nothing");
     lcd.clear();
-    lcd.print("Warming Up");
+    String bar;
+    bar = String("Warming Up ");
+//    bar += attempts;
+    lcd.print(bar);
     lcd.setCursor(0,1);
-    lcd.print(attempts);
+    String pie;
+    int bill = (attempts % 5);
+    if(bill == 1){
+      pie = String(".");
+    }else if(bill == 2){
+      pie = String("..");
+    }else if(bill == 3){
+      pie = String("...");
+    }else if(bill == 4){
+      pie = String("....");
+    }else{
+      pie = String(".....");
+    }
+    lcd.print(pie);
+//    Serial.println(bill);
+//    switch (bill){
+//      case 0:
+//        pie = String('.');
+//        break;
+//      case 1:
+//        pie = String('..');
+//        break;
+//      case 2:
+//        pie = String('...');
+//        break;
+//      case 3:
+//        pie = String('....');
+//        break;
+//      case 4:
+//        pie = String('.....');
+//        break;
+//      default:
+//        pie = String('......');
+//        break;
+//    }  
+//       lcd.print(pie);
   }
 
 

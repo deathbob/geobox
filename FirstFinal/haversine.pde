@@ -21,14 +21,20 @@ float haverSine(float lat1, float lon1, float lat2, float lon2)
 
 float distance_to_target(float lat1, float lon1){
 // lift coffee  (37.547084, -77.444196)
-  float my_lat = 37.547084;
-  float my_lon = -77.444196;
+//  float my_lat = 37.547084;
+//  float my_lon = -77.444196;
+
+// top of mom and dad's driveway, 4900 old buckingham road // (37.52361393, -77.99548119)
+  float my_lat = 37.52361393;
+  float my_lon = -77.99548119;
+
 
   float result = haverSine(lat1, lon1, my_lat, my_lon);
   return result;
 }
 
 float distance_to_home(float lat1, float lon1){
+  // home being my house at 6526 stuart ave, 23226
   float my_lat = 37.58555;
   float my_lon = -77.52729;
 

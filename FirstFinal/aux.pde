@@ -1,28 +1,28 @@
-boolean in_range(long lat, long lon){
-  long margin_of_error = 01; 
-  // .00001 is equal to about 3 feet or 1 meter
-  // .0001 is equal to about 30 feet
-  long my_lat = 3758555;
-  long my_lon = -7752729;
-  boolean lat_good = false;
-  boolean lon_good = false;
-  if((lat > (my_lat - margin_of_error)) && (lat < (my_lat + margin_of_error))){
-    lat_good = true;
-    Serial.println("Lat good");
-  }
-  if((lon > (my_lon - margin_of_error)) && (lon < (my_lon + margin_of_error))){
-    lon_good = true;
-    Serial.println("Lon Good");
-  }
-  
-  if (lat_good && lon_good){
-    return true;
-  }else{
-    return false;
-  }
-// my house 
-// lat 37.58555, -77.52729
-}
+//boolean in_range(long lat, long lon){
+//  long margin_of_error = 01; 
+//  // .00001 is equal to about 3 feet or 1 meter
+//  // .0001 is equal to about 30 feet
+//  long my_lat = 3758555;
+//  long my_lon = -7752729;
+//  boolean lat_good = false;
+//  boolean lon_good = false;
+//  if((lat > (my_lat - margin_of_error)) && (lat < (my_lat + margin_of_error))){
+//    lat_good = true;
+//    Serial.println("Lat good");
+//  }
+//  if((lon > (my_lon - margin_of_error)) && (lon < (my_lon + margin_of_error))){
+//    lon_good = true;
+//    Serial.println("Lon Good");
+//  }
+//  
+//  if (lat_good && lon_good){
+//    return true;
+//  }else{
+//    return false;
+//  }
+//// my house 
+//// lat 37.58555, -77.52729
+//}
 
 void printFloat(double number, int digits)
 {
